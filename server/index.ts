@@ -83,7 +83,10 @@ export default app;
     const { setupVite } = await import("./vite");
     await setupVite(httpServer, app);
   } else {
-    serveStatic(app);
+    // Only serve static files if NOT on Vercel
+    if (process.env.VERCEL !== "1") {
+      serveStatic(app);
+    }
   }
 
   // Only listen if run directly (not imported)
