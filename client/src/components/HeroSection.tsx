@@ -16,48 +16,52 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
   };
 
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 dark:from-primary/10 dark:to-primary/5" />
-      
-      <div className="relative max-w-4xl mx-auto px-4 text-center">
-        <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-          Everything a Student Needs,{" "}
-          <span className="text-primary">In One Place.</span>
-        </h1>
+    <section className="relative py-24 md:py-32 overflow-hidden bg-background">
+      <div className="relative max-w-5xl mx-auto px-4 text-center z-10">
+        <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 text-foreground">
+            Everything a Student Needs,{" "}
+            <span className="text-primary">In One Place.</span>
+          </h1>
+        </div>
         
-        <p className="text-muted-foreground text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-          Find boarding, food delivery, tuk-tuks, and sold textbooks nearby.
-        </p>
+        <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
+          <p className="text-muted-foreground text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+            The ultimate platform for university life. Find boarding, food, transport, and academic resources—all connected to your campus.
+          </p>
+        </div>
 
-        <form onSubmit={handleSearch} className="max-w-xl mx-auto">
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search for boarding, food, transport..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 text-base"
-                data-testid="input-search"
-              />
+        <div className="animate-slide-up" style={{ animationDelay: "0.3s" }}>
+          <form onSubmit={handleSearch} className="max-w-xl mx-auto relative">
+            <div className="relative flex gap-2 p-1 rounded-full border shadow-sm hover:shadow-md transition-shadow bg-card">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="What are you looking for?"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 h-12 text-base border-0 shadow-none focus-visible:ring-0 bg-transparent rounded-full"
+                  data-testid="input-search"
+                />
+              </div>
+              <Button type="submit" size="lg" className="h-12 px-8 rounded-full" data-testid="button-search">
+                Search
+              </Button>
             </div>
-            <Button type="submit" size="lg" data-testid="button-search">
-              Search
-            </Button>
-          </div>
-        </form>
+          </form>
+        </div>
 
-        <div className="mt-6 flex flex-wrap justify-center gap-2 text-sm text-muted-foreground">
-          <span>Popular:</span>
-          {["Single Room", "Rice & Curry", "Tuk-tuk", "Textbooks"].map((term) => (
+        <div className="mt-10 flex flex-wrap justify-center gap-3 text-sm text-muted-foreground animate-slide-up" style={{ animationDelay: "0.4s" }}>
+          <span className="font-medium py-1">Trending:</span>
+          {["Boarding Places", "Lunch Packets", "Tuk Rides", "Used Books"].map((term) => (
             <button
               key={term}
               onClick={() => {
                 setSearchQuery(term);
                 onSearch(term);
               }}
-              className="hover:text-primary transition-colors"
+              className="px-3 py-1 rounded-full bg-secondary/50 hover:bg-secondary hover:text-foreground transition-colors"
               data-testid={`link-popular-${term.toLowerCase().replace(/ & /g, "-").replace(" ", "-")}`}
             >
               {term}

@@ -47,35 +47,46 @@ export function LoginModal({ open, onClose, onSuccess }: LoginModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="text-center">
-          <div className="mx-auto mb-2 bg-primary rounded-md p-2 w-fit">
-            <GraduationCap className="h-6 w-6 text-primary-foreground" />
+      <DialogContent className="sm:max-w-md p-0 gap-0 bg-card border-border shadow-2xl animate-in fade-in zoom-in-95 duration-300 overflow-hidden">
+        <div className="bg-primary/5 p-8 text-center border-b">
+          <div className="mx-auto mb-4 bg-background rounded-full p-3 w-fit shadow-sm ring-1 ring-border">
+            <GraduationCap className="h-8 w-8 text-primary" />
           </div>
-          <DialogTitle className="text-xl">Welcome to UniHub</DialogTitle>
-          <DialogDescription>
-            Sign in to post ads and connect with the campus community
+          <DialogTitle className="text-2xl font-bold mb-2">Welcome to UniHub</DialogTitle>
+          <DialogDescription className="text-base max-w-xs mx-auto">
+            Join your campus community to post ads, find resources, and connect.
           </DialogDescription>
-        </DialogHeader>
+        </div>
 
-        <div className="space-y-4">
+        <div className="p-8 space-y-6">
           <Button
             variant="outline"
-            className="w-full gap-2"
+            className="w-full h-12 gap-3 text-base font-medium hover:bg-secondary/50 transition-all hover:border-primary/30"
             onClick={handleGoogleLogin}
             disabled={isLoading}
             data-testid="button-google-login"
           >
             {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
             ) : (
-              <SiGoogle className="h-4 w-4" />
+              <SiGoogle className="h-5 w-5" />
             )}
-            Sign in with Google
+            Continue with Google
           </Button>
 
-          <p className="text-center text-xs text-muted-foreground">
-            By signing in, you agree to our Terms of Service and Privacy Policy
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Secure Authentication
+              </span>
+            </div>
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground px-4">
+            By continuing, you agree to our <span className="underline hover:text-primary cursor-pointer">Terms of Service</span> and <span className="underline hover:text-primary cursor-pointer">Privacy Policy</span>.
           </p>
         </div>
       </DialogContent>
