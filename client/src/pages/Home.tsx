@@ -1,20 +1,57 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { HeroSection } from "@/components/HeroSection";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { ListingGrid } from "@/components/ListingGrid";
 import { MapView } from "@/components/MapView";
 import { ViewToggle } from "@/components/ViewToggle";
 import { ContactModal } from "@/components/ContactModal";
-import { listings, type Listing } from "@/lib/mockData";
+import { listings as mockListings, type Listing } from "@/lib/mockData";
+import { getListings, type FirebaseListing } from "@/lib/firebase";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<"list" | "map">("list");
   const [contactListing, setContactListing] = useState<Listing | null>(null);
+  const [firebaseListings, setFirebaseListings] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const fbListings = await getListings();
+        const converted: Listing[] = fbListings.map((fb) => ({
+          id: fb.id || "",
+          title: fb.title,
+          price: fb.price,
+          priceType: fb.priceType,
+          location: fb.location,
+          distance: fb.distance,
+          rating: fb.rating,
+          reviews: fb.reviews,
+          category: fb.category,
+          image: fb.image,
+          verified: fb.verified,
+          phone: fb.phone,
+        }));
+        setFirebaseListings(converted);
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, []);
+
+  const allListings = useMemo(() => {
+    return [...firebaseListings, ...mockListings];
+  }, [firebaseListings]);
 
   const filteredListings = useMemo(() => {
-    return listings.filter((listing) => {
+    return allListings.filter((listing) => {
       const matchesCategory = !selectedCategory || listing.category === selectedCategory;
       const matchesSearch =
         !searchQuery ||
@@ -23,7 +60,7 @@ export default function Home() {
         listing.category.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, allListings]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -49,13 +86,24 @@ export default function Home() {
                 : "All Listings"}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""} found
+              {isLoading ? (
+                <span className="flex items-center gap-1">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Loading listings...
+                </span>
+              ) : (
+                `${filteredListings.length} listing${filteredListings.length !== 1 ? "s" : ""} found`
+              )}
             </p>
           </div>
           <ViewToggle view={view} onViewChange={setView} />
         </div>
 
-        {view === "list" ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : view === "list" ? (
           <ListingGrid listings={filteredListings} onContact={setContactListing} />
         ) : (
           <MapView listings={filteredListings} onListingClick={setContactListing} />

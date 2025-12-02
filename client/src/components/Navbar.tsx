@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { GraduationCap, Menu, X, MapPin, Users, AlertTriangle, LayoutGrid } from "lucide-react";
+import { GraduationCap, Menu, X, MapPin, Users, AlertTriangle, LayoutGrid, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type NavbarProps = {
   onPostAdClick: () => void;
@@ -20,7 +20,7 @@ type NavbarProps = {
 export function Navbar({ onPostAdClick }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
 
   const navLinks = [
     { href: "/", label: "Browse", icon: LayoutGrid },
@@ -32,6 +32,14 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
   const isActive = (href: string) => {
     if (href === "/") return location === "/";
     return location.startsWith(href);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -71,24 +79,29 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
               Post Ad
             </Button>
 
-            {isAuthenticated ? (
+            {isLoading ? (
+              <Button variant="ghost" size="icon" disabled>
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </Button>
+            ) : isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu">
                     <Avatar className="h-8 w-8">
+                      {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || "User"} />}
                       <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                        {user?.name?.charAt(0).toUpperCase()}
+                        {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium">{user?.name}</p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <p className="text-sm font-medium">{user.displayName || "User"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} data-testid="button-logout">
+                  <DropdownMenuItem onClick={handleLogout} data-testid="button-logout">
                     Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -19,6 +19,7 @@ function AppContent() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showPostAdModal, setShowPostAdModal] = useState(false);
   const [pendingPostAd, setPendingPostAd] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const { isAuthenticated } = useAuth();
 
   const handlePostAdClick = () => {
@@ -37,12 +38,16 @@ function AppContent() {
     }
   };
 
+  const handlePostAdSuccess = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar onPostAdClick={handlePostAdClick} />
       
       <Switch>
-        <Route path="/" component={Home} />
+        <Route path="/" component={() => <Home key={refreshKey} />} />
         <Route path="/map" component={MapPage} />
         <Route path="/community" component={Community} />
         <Route path="/emergency" component={Emergency} />
@@ -63,6 +68,7 @@ function AppContent() {
       <PostAdModal
         open={showPostAdModal}
         onClose={() => setShowPostAdModal(false)}
+        onSuccess={handlePostAdSuccess}
       />
     </div>
   );
