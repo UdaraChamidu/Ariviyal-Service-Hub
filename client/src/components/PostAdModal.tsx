@@ -28,6 +28,7 @@ import { categories } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/AuthContext";
 import { addListing } from "@/lib/firebase";
+import { useLanguage } from "@/lib/LanguageContext";
 
 type PostAdModalProps = {
   open: boolean;
@@ -50,6 +51,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
   const [imageUrl, setImageUrl] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,9 +120,9 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0 bg-card border-border shadow-2xl animate-in fade-in zoom-in-95 duration-300">
         <div className="p-6 border-b bg-muted/30">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">Post a New Ad</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-center">{t("postAdTitle")}</DialogTitle>
             <DialogDescription className="text-center text-base">
-              Share your listing with the university community
+              {t("postAdDescription")}
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -128,7 +130,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-base font-semibold">Title</Label>
+              <Label htmlFor="title" className="text-base font-semibold">{t("labelTitle")}</Label>
               <Input
                 id="title"
                 placeholder="e.g., Spacious Single Room near Campus"
@@ -142,7 +144,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="category" className="font-semibold">Category</Label>
+                <Label htmlFor="category" className="font-semibold">{t("labelCategory")}</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -163,7 +165,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
 
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="priceType" className="font-semibold">Price Type</Label>
+                  <Label htmlFor="priceType" className="font-semibold">{t("labelPriceType")}</Label>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -195,7 +197,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="price" className="font-semibold">Price (Rs.)</Label>
+              <Label htmlFor="price" className="font-semibold">{t("labelPrice")}</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">Rs.</span>
                 <Input
@@ -213,7 +215,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="location" className="font-semibold">Location</Label>
+                <Label htmlFor="location" className="font-semibold">{t("labelLocation")}</Label>
                 <Input
                   id="location"
                   placeholder="e.g., Wijemanne Road"
@@ -225,7 +227,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="distance" className="font-semibold">Distance to Gate</Label>
+                <Label htmlFor="distance" className="font-semibold">{t("labelDistance")}</Label>
                 <Input
                   id="distance"
                   placeholder="e.g., 500m to gate"
@@ -238,7 +240,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone" className="font-semibold">Contact Phone</Label>
+              <Label htmlFor="phone" className="font-semibold">{t("labelPhone")}</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -252,7 +254,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="font-semibold">Description</Label>
+              <Label htmlFor="description" className="font-semibold">{t("labelDescription")}</Label>
               <Textarea
                 id="description"
                 placeholder="Describe your listing in detail... Mention key features, rules, or availability."
@@ -265,7 +267,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="imageUrl" className="font-semibold">Image URL (optional)</Label>
+              <Label htmlFor="imageUrl" className="font-semibold">{t("labelImage")}</Label>
               <div className="flex gap-2">
                 <Input
                   id="imageUrl"
@@ -310,7 +312,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
 
           <div className="flex gap-3 pt-4 border-t mt-6">
             <Button type="button" variant="outline" size="lg" className="flex-1" onClick={onClose}>
-              Cancel
+              {t("buttonCancel")}
             </Button>
             <Button type="submit" size="lg" className="flex-1" disabled={isSubmitting || !formData.category} data-testid="button-submit-ad">
               {isSubmitting ? (
@@ -319,7 +321,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
                   Posting...
                 </>
               ) : (
-                "Post Ad"
+                t("buttonPost")
               )}
             </Button>
           </div>

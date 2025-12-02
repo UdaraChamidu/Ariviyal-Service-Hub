@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/lib/LanguageContext";
 
 // todo: remove mock functionality - integrate with Firebase
 
@@ -40,6 +41,8 @@ const communityPosts = [
 ];
 
 export default function Community() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen">
       <div className="max-w-3xl mx-auto px-4 py-8">
@@ -48,9 +51,9 @@ export default function Community() {
             <Users className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Community</h1>
+            <h1 className="text-2xl font-bold">{t("communityTitle")}</h1>
             <p className="text-muted-foreground">
-              Connect with fellow students and share campus tips
+              {t("communityDescription")}
             </p>
           </div>
         </div>
@@ -62,7 +65,7 @@ export default function Community() {
                 <AvatarFallback>You</AvatarFallback>
               </Avatar>
               <Button variant="outline" className="flex-1 justify-start text-muted-foreground">
-                Share something with the community...
+                {t("sharePlaceholder")}
               </Button>
             </div>
           </CardContent>
@@ -104,7 +107,7 @@ export default function Community() {
                   </Button>
                   <Button variant="ghost" size="sm" className="gap-2 ml-auto">
                     <Share2 className="h-4 w-4" />
-                    Share
+                    {t("share")}
                   </Button>
                 </div>
               </CardContent>

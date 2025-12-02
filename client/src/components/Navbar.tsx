@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { GraduationCap, Menu, X, MapPin, Users, AlertTriangle, LayoutGrid, Loader2 } from "lucide-react";
+import { GraduationCap, Menu, X, MapPin, Users, AlertTriangle, LayoutGrid, Loader2, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
+import { useLanguage } from "@/lib/LanguageContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,12 +22,13 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
   const { user, logout, isAuthenticated, isLoading } = useAuth();
+  const { t, setLanguage, language } = useLanguage();
 
   const navLinks = [
-    { href: "/", label: "Browse", icon: LayoutGrid },
-    { href: "/map", label: "Map View", icon: MapPin },
-    { href: "/community", label: "Community", icon: Users },
-    { href: "/emergency", label: "Emergency", icon: AlertTriangle },
+    { href: "/", label: t("browse"), icon: LayoutGrid },
+    { href: "/map", label: t("mapView"), icon: MapPin },
+    { href: "/community", label: t("community"), icon: Users },
+    { href: "/emergency", label: t("emergency"), icon: AlertTriangle },
   ];
 
   const isActive = (href: string) => {
@@ -69,6 +71,25 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Globe className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setLanguage("en")} className={language === "en" ? "bg-accent" : ""}>
+                  English
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage("si")} className={language === "si" ? "bg-accent" : ""}>
+                  සිංහල (Sinhala)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage("ta")} className={language === "ta" ? "bg-accent" : ""}>
+                  தமிழ் (Tamil)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <ThemeToggle />
             
             <Button
@@ -76,7 +97,7 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
               className="hidden sm:flex"
               data-testid="button-post-ad"
             >
-              Post Ad
+              {t("postAd")}
             </Button>
 
             {isLoading ? (
@@ -102,7 +123,7 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} data-testid="button-logout">
-                    Sign Out
+                    {t("signOut")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -143,7 +164,7 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
                 className="mt-2"
                 data-testid="button-post-ad-mobile"
               >
-                Post Ad
+                {t("postAd")}
               </Button>
             </div>
           </div>

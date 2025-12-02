@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/LanguageContext";
 
 type LoginModalProps = {
   open: boolean;
@@ -22,6 +23,7 @@ export function LoginModal({ open, onClose, onSuccess }: LoginModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { loginWithGoogle } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -52,9 +54,9 @@ export function LoginModal({ open, onClose, onSuccess }: LoginModalProps) {
           <div className="mx-auto mb-4 bg-background rounded-full p-3 w-fit shadow-sm ring-1 ring-border">
             <GraduationCap className="h-8 w-8 text-primary" />
           </div>
-          <DialogTitle className="text-2xl font-bold mb-2">Welcome to UniHub</DialogTitle>
+          <DialogTitle className="text-2xl font-bold mb-2">{t("welcomeTitle")}</DialogTitle>
           <DialogDescription className="text-base max-w-xs mx-auto">
-            Join your campus community to post ads, find resources, and connect.
+            {t("welcomeDescription")}
           </DialogDescription>
         </div>
 
@@ -71,7 +73,7 @@ export function LoginModal({ open, onClose, onSuccess }: LoginModalProps) {
             ) : (
               <SiGoogle className="h-5 w-5" />
             )}
-            Continue with Google
+            {t("continueGoogle")}
           </Button>
 
           <div className="relative">
@@ -80,13 +82,13 @@ export function LoginModal({ open, onClose, onSuccess }: LoginModalProps) {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-card px-2 text-muted-foreground">
-                Secure Authentication
+                {t("secureAuth")}
               </span>
             </div>
           </div>
 
           <p className="text-center text-xs text-muted-foreground px-4">
-            By continuing, you agree to our <span className="underline hover:text-primary cursor-pointer">Terms of Service</span> and <span className="underline hover:text-primary cursor-pointer">Privacy Policy</span>.
+            {t("agreeText")} <span className="underline hover:text-primary cursor-pointer">{t("terms")}</span> {t("and")} <span className="underline hover:text-primary cursor-pointer">{t("privacy")}</span>.
           </p>
         </div>
       </DialogContent>

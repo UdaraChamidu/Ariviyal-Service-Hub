@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Listing } from "@/lib/mockData";
+import { useLanguage } from "@/lib/LanguageContext";
 
 type ListingCardProps = {
   listing: Listing;
@@ -10,6 +11,8 @@ type ListingCardProps = {
 };
 
 export function ListingCard({ listing, onContact }: ListingCardProps) {
+  const { t } = useLanguage();
+
   return (
     <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border/50" data-testid={`card-listing-${listing.id}`}>
       <div className="relative aspect-[4/3] overflow-hidden">
@@ -23,7 +26,7 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
         {listing.verified && (
           <Badge className="absolute top-2 left-2 gap-1 bg-green-600/90 hover:bg-green-700 backdrop-blur-sm shadow-sm">
             <CheckCircle className="h-3 w-3" />
-            Verified
+            {t("verified")}
           </Badge>
         )}
         
@@ -37,7 +40,7 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
             }}
           >
             <Phone className="h-4 w-4" />
-            Quick Contact
+            {t("quickContact")}
           </Button>
         </div>
       </div>
@@ -85,7 +88,7 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
           onClick={() => onContact(listing)}
           data-testid={`button-contact-${listing.id}`}
         >
-          View Details
+          {t("viewDetails")}
         </Button>
       </CardContent>
     </Card>

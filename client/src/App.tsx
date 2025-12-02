@@ -74,14 +74,20 @@ function AppContent() {
   );
 }
 
+import { LanguageProvider } from "@/lib/LanguageContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AuthProvider>
-          <AppContent />
-          <Toaster />
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <LanguageSelector />
+            <AppContent />
+            <Toaster />
+          </AuthProvider>
+        </LanguageProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

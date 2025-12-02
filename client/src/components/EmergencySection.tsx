@@ -2,6 +2,7 @@ import { Phone, Hospital, Shield, Siren } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { emergencyContacts } from "@/lib/mockData";
+import { useLanguage } from "@/lib/LanguageContext";
 
 const iconMap: Record<string, typeof Hospital> = {
   Hospital,
@@ -10,6 +11,8 @@ const iconMap: Record<string, typeof Hospital> = {
 };
 
 export function EmergencySection() {
+  const { t } = useLanguage();
+
   const handleCall = (phone: string) => {
     window.location.href = `tel:${phone.replace(/[^0-9+]/g, "")}`;
   };
@@ -21,9 +24,9 @@ export function EmergencySection() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
             <Phone className="h-8 w-8 text-red-600 dark:text-red-400" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Emergency Contacts</h1>
+          <h1 className="text-3xl font-bold mb-2">{t("emergencyTitle")}</h1>
           <p className="text-muted-foreground">
-            Quick access to essential emergency services near campus
+            {t("emergencyDescription")}
           </p>
         </div>
 
@@ -48,7 +51,7 @@ export function EmergencySection() {
                       data-testid={`button-call-${contact.id}`}
                     >
                       <Phone className="h-5 w-5" />
-                      <span className="hidden sm:inline">Tap to Call</span>
+                      <span className="hidden sm:inline">{t("tapToCall")}</span>
                       <span className="font-mono">{contact.phone}</span>
                     </Button>
                   </div>
@@ -61,7 +64,7 @@ export function EmergencySection() {
         <Card className="mt-8 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
           <CardContent className="p-4 text-center">
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              In case of a life-threatening emergency, always call <strong>119</strong> (Police) or <strong>110</strong> (Ambulance) first.
+              {t("emergencyNote")}
             </p>
           </CardContent>
         </Card>
