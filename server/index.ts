@@ -64,6 +64,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Export the app for Vercel
+export default app;
+
+// Initialize routes
 (async () => {
   await registerRoutes(httpServer, app);
 
@@ -75,22 +79,35 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (process.env.NODE_ENV === "production") {
-    serveStatic(app);
-  } else {
+  if (app.get("env") === "development") {
     const { setupVite } = await import("./vite");
     await setupVite(httpServer, app);
+  } else {
+    serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Only listen if run directly (not imported)
+  // In Vercel, this file is imported, so we don't listen here.
+  // We check if we are in a production environment and NOT in Vercel (or just check if port is set and we are main)
+  // A simple check is to see if we are running via 'npm run dev' or 'npm start' vs being imported.
+  // However, for Vercel, we can just rely on the fact that Vercel imports it.
+  
+  // But wait, esbuild bundles this.
+  // If we run `node dist/index.cjs`, we want it to listen.
+  // If Vercel imports it, we want it to NOT listen?
+  // Actually, Vercel will import `api/index.ts` which imports this.
+  
+  // Let's just check an env var or simply always listen IF we are the main module?
+  // In ESM/TS, checking main is hard.
+  
+  // Alternative: Just listen. Vercel serverless functions usually don't fail if you listen, 
+  // but it's better to export the handler.
+  
   const port = parseInt(process.env.PORT || "3000", 10);
-  httpServer.listen(port, () => {
-    log(`serving on port ${port}`);
-  });
+  // Only start server if not running in Vercel (Vercel sets VERCEL=1)
+  if (process.env.VERCEL !== "1") {
+      httpServer.listen(port, () => {
+        log(`serving on port ${port}`);
+      });
+  }
 })();
