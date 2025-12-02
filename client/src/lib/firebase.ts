@@ -22,6 +22,11 @@ import {
   deleteDoc,
   updateDoc,
   serverTimestamp,
+  arrayUnion,
+  arrayRemove,
+  increment,
+  runTransaction,
+  getDoc,
   type DocumentData,
 } from "firebase/firestore";
 
@@ -204,25 +209,23 @@ export async function updateListing(
 export async function toggleListingLike(listingId: string, userId: string) {
   try {
     const listingRef = doc(db, "listings", listingId);
-    const listingDoc = await getDocs(query(collection(db, "listings"), where("__name__", "==", listingId)));
-    
-    // Note: In a real app, we should use a transaction or arrayUnion/arrayRemove
-    // But for simplicity and since we don't have arrayUnion imported yet, we'll read-modify-write
-    // Actually, let's just fetch the single doc
-    // const docSnap = await getDoc(listingRef); // Need to import getDoc
-    
-    // For now, let's assume the UI handles the optimistic update and we just send the new array
-    // Or better, let's import arrayUnion and arrayRemove if possible, but I'll stick to the existing imports if I can.
-    // I will add the imports in a separate edit if needed, or just use what I have.
-    // I have getDocs, query, where. I can use getDocs to find the doc.
-    
-    // Let's just use updateDoc with the new array.
-    // Wait, I can't easily do atomic updates without arrayUnion.
-    // I'll skip the atomic part for now and just rely on the caller to pass the new array or handle it in the UI?
-    // No, the function signature implies I handle it.
-    
-    // Let's just return for now, I will implement this properly with imports in a second pass if needed.
-    // Actually, I can just add the imports to the top of the file in a separate chunk.
+    const listingSnap = await getDoc(listingRef);
+
+    if (listingSnap.exists()) {
+      const listingData = listingSnap.data() as FirebaseListing;
+      const likes = listingData.likes || [];
+      const isLiked = likes.includes(userId);
+
+      if (isLiked) {
+        await updateDoc(listingRef, {
+          likes: arrayRemove(userId)
+        });
+      } else {
+        await updateDoc(listingRef, {
+          likes: arrayUnion(userId)
+        });
+      }
+    }
   } catch (error) {
     console.error("Error toggling like:", error);
     throw error;
@@ -231,14 +234,34 @@ export async function toggleListingLike(listingId: string, userId: string) {
 
 export async function addReview(review: Omit<Review, "id" | "createdAt">) {
   try {
-    await addDoc(collection(db, "reviews"), {
-      ...review,
-      createdAt: serverTimestamp(),
+    await runTransaction(db, async (transaction) => {
+      // 1. Create the review document
+      const newReviewRef = doc(collection(db, "reviews"));
+      transaction.set(newReviewRef, {
+        ...review,
+        createdAt: serverTimestamp(),
+      });
+
+      // 2. Update the listing's rating and review count
+      const listingRef = doc(db, "listings", review.listingId);
+      const listingSnap = await transaction.get(listingRef);
+
+      if (!listingSnap.exists()) {
+        throw new Error("Listing does not exist!");
+      }
+
+      const listingData = listingSnap.data() as FirebaseListing;
+      const currentReviews = listingData.reviews || 0;
+      const currentRating = listingData.rating || 0;
+
+      const newReviewCount = currentReviews + 1;
+      const newRating = ((currentRating * currentReviews) + review.rating) / newReviewCount;
+
+      transaction.update(listingRef, {
+        reviews: newReviewCount,
+        rating: newRating,
+      });
     });
-    
-    // Update listing rating and review count
-    // This requires a transaction or cloud function ideally.
-    // For now, we will just add the review.
   } catch (error) {
     console.error("Error adding review:", error);
     throw error;

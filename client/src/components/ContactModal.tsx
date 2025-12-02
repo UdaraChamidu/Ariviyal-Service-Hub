@@ -94,63 +94,69 @@ export function ContactModal({ listing, open, onClose }: ContactModalProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] p-0 flex flex-col gap-0">
-        <div className="relative h-64 md:h-80 bg-black/5">
-          <img
-            src={images[currentImageIndex]}
-            alt={listing.title}
-            className="w-full h-full object-contain"
-          />
-          {images.length > 1 && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
-                onClick={prevImage}
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
-                onClick={nextImage}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                {images.map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-2 h-2 rounded-full ${
-                      i === currentImageIndex ? "bg-white" : "bg-white/50"
-                    }`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 bg-black/50 text-white hover:bg-black/70 rounded-full"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        <div className="flex-1 overflow-y-auto">
+          <div className="relative h-64 md:h-80 bg-black/5">
+            <img
+              src={images[currentImageIndex]}
+              alt={listing.title}
+              className="w-full h-full object-contain"
+            />
+            {images.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                  onClick={prevImage}
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                  onClick={nextImage}
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </Button>
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                  {images.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-2 h-2 rounded-full ${
+                        i === currentImageIndex ? "bg-white" : "bg-white/50"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 bg-black/50 text-white hover:bg-black/70 rounded-full"
+              onClick={onClose}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="space-y-6">
+          <div className="p-6 space-y-6">
             <div>
-              <h2 className="text-2xl font-bold mb-2">{listing.title}</h2>
+              <div className="flex justify-between items-start">
+                <h2 className="text-2xl font-bold mb-2">{listing.title}</h2>
+                <div className="flex items-center gap-1 text-muted-foreground bg-muted px-2 py-1 rounded-full text-sm">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span>{listing.likes?.length || 0} watching</span>
+                </div>
+              </div>
               <div className="flex items-center gap-4 text-muted-foreground">
                 <span className="text-xl font-bold text-primary">
                   {listing.price}/{listing.priceType}
                 </span>
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium text-foreground">{listing.rating}</span>
+                  <span className="font-medium text-foreground">{listing.rating.toFixed(1)}</span>
                   <span>({listing.reviews} reviews)</span>
                 </div>
               </div>
