@@ -12,13 +12,17 @@ export type Listing = {
   price: string;
   priceType: string;
   location: string;
+  locationLink?: string;
   distance: string;
   rating: number;
   reviews: number;
   category: string;
   image: string;
+  images?: string[];
   verified: boolean;
   phone: string;
+  likes?: string[];
+  description?: string;
 };
 
 export type EmergencyContact = {
@@ -36,6 +40,7 @@ export const categories: Category[] = [
   { id: "market", name: "Market", icon: "ShoppingBag" },
   { id: "jobs", name: "Jobs", icon: "Briefcase" },
   { id: "laundry", name: "Laundry", icon: "Shirt" },
+  { id: "other", name: "Other", icon: "MoreHorizontal" },
 ];
 
 export const listings: Listing[] = [

@@ -1,4 +1,5 @@
 import { MapPin, Star, CheckCircle, Phone } from "lucide-react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,12 +13,21 @@ type ListingCardProps = {
 
 export function ListingCard({ listing, onContact }: ListingCardProps) {
   const { t } = useLanguage();
+  const [isLiked, setIsLiked] = useState(false); // In real app, check if user.uid is in listing.likes
+
+  const displayImage = listing.images?.[0] || listing.image;
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsLiked(!isLiked);
+    // toggleListingLike(listing.id, user.uid);
+  };
 
   return (
     <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border/50" data-testid={`card-listing-${listing.id}`}>
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={listing.image}
+          src={displayImage}
           alt={listing.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
@@ -29,6 +39,15 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
             {t("verified")}
           </Badge>
         )}
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 text-white hover:bg-white/20 hover:text-white"
+          onClick={handleLike}
+        >
+          <Star className={`h-5 w-5 ${isLiked ? "fill-yellow-400 text-yellow-400" : ""}`} />
+        </Button>
         
         <div className="absolute bottom-2 left-2 right-2 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
           <Button

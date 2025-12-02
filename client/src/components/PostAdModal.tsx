@@ -27,7 +27,8 @@ import {
 import { categories } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/AuthContext";
-import { addListing } from "@/lib/firebase";
+import { addListing, storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useLanguage } from "@/lib/LanguageContext";
 
 type PostAdModalProps = {
@@ -45,13 +46,45 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
     priceType: "month",
     description: "",
     location: "",
+    locationLink: "",
     phone: "",
     distance: "",
   });
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { t } = useLanguage();
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    setUploading(true);
+    const files = Array.from(e.target.files);
+    const newUrls: string[] = [];
+
+    try {
+      for (const file of files) {
+        const storageRef = ref(storage, `listings/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(snapshot.ref);
+        newUrls.push(url);
+      }
+      
+      setImageUrls((prev) => [...prev, ...newUrls]);
+      toast({ title: "Images uploaded successfully" });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({ title: "Failed to upload images", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImageField = (index: number) => {
+    const newUrls = imageUrls.filter((_, i) => i !== index);
+    setImageUrls(newUrls);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,16 +101,20 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
     setIsSubmitting(true);
     
     try {
+      const validImages = imageUrls.filter(url => url.trim() !== "");
+      
       await addListing({
-        title: formData.title,
+        title: formData.title || "Untitled Listing",
         category: formData.category,
-        price: `Rs. ${formData.price}`,
+        price: formData.price ? `Rs. ${formData.price}` : "Contact for Price",
         priceType: formData.priceType,
         description: formData.description,
         location: formData.location,
-        distance: formData.distance || "Near campus",
+        locationLink: formData.locationLink,
+        distance: formData.distance || "",
         phone: formData.phone,
-        image: imageUrl || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop",
+        image: validImages[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop",
+        images: validImages,
         verified: user.emailVerified || false,
         rating: 0,
         reviews: 0,
@@ -87,7 +124,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
       
       toast({
         title: "Ad Posted Successfully!",
-        description: "Your listing is now live and visible to students.",
+        description: "Your listing is now live.",
       });
       
       setFormData({
@@ -97,10 +134,11 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
         priceType: "month",
         description: "",
         location: "",
+        locationLink: "",
         phone: "",
         distance: "",
       });
-      setImageUrl("");
+      setImageUrls([]);
       onSuccess?.();
       onClose();
     } catch (error: any) {
@@ -130,13 +168,12 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-base font-semibold">{t("labelTitle")}</Label>
+              <Label htmlFor="title" className="text-base font-semibold">{t("labelTitle")} (Optional)</Label>
               <Input
                 id="title"
                 placeholder="e.g., Spacious Single Room near Campus"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                required
                 className="h-11 text-base"
                 data-testid="input-ad-title"
               />
@@ -144,7 +181,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="category" className="font-semibold">{t("labelCategory")}</Label>
+                <Label htmlFor="category" className="font-semibold">{t("labelCategory")} *</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -166,16 +203,6 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Label htmlFor="priceType" className="font-semibold">{t("labelPriceType")}</Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>How is the price calculated?</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                 </div>
                 <Select
                   value={formData.priceType}
@@ -197,7 +224,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="price" className="font-semibold">{t("labelPrice")}</Label>
+              <Label htmlFor="price" className="font-semibold">{t("labelPrice")} *</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">Rs.</span>
                 <Input
@@ -215,7 +242,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="location" className="font-semibold">{t("labelLocation")}</Label>
+                <Label htmlFor="location" className="font-semibold">{t("labelLocation")} *</Label>
                 <Input
                   id="location"
                   placeholder="e.g., Wijemanne Road"
@@ -227,7 +254,7 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="distance" className="font-semibold">{t("labelDistance")}</Label>
+                <Label htmlFor="distance" className="font-semibold">{t("labelDistance")} (Optional)</Label>
                 <Input
                   id="distance"
                   placeholder="e.g., 500m to gate"
@@ -240,7 +267,20 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone" className="font-semibold">{t("labelPhone")}</Label>
+              <Label htmlFor="locationLink" className="font-semibold">Location Link (Google Maps) (Optional)</Label>
+              <Input
+                id="locationLink"
+                type="url"
+                placeholder="https://maps.google.com/..."
+                value={formData.locationLink}
+                onChange={(e) => setFormData({ ...formData, locationLink: e.target.value })}
+                className="h-11"
+                data-testid="input-location-link"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="font-semibold">{t("labelPhone")} *</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -254,10 +294,10 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="font-semibold">{t("labelDescription")}</Label>
+              <Label htmlFor="description" className="font-semibold">{t("labelDescription")} (Optional)</Label>
               <Textarea
                 id="description"
-                placeholder="Describe your listing in detail... Mention key features, rules, or availability."
+                placeholder="Describe your listing..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
@@ -267,46 +307,44 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="imageUrl" className="font-semibold">{t("labelImage")}</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="imageUrl"
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="h-11 flex-1"
-                  data-testid="input-image-url"
-                />
-              </div>
+              <Label className="font-semibold">{t("labelImage")}s (Optional)</Label>
               
-              {imageUrl ? (
-                <div className="relative w-full h-48 rounded-lg overflow-hidden mt-3 border bg-muted/20 group">
-                  <img
-                    src={imageUrl}
-                    alt="Preview"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    onError={() => setImageUrl("")}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    disabled={uploading || imageUrls.length >= 5}
+                    className="cursor-pointer"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => setImageUrl("")}
-                      className="gap-2"
-                    >
-                      <X className="h-4 w-4" />
-                      Remove Image
-                    </Button>
+                  {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
+                </div>
+
+                {imageUrls.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {imageUrls.map((url, index) => (
+                      <div key={index} className="relative aspect-video rounded-lg overflow-hidden border bg-muted">
+                        <img src={url} alt={`Uploaded ${index + 1}`} className="w-full h-full object-cover" />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6"
+                          onClick={() => removeImageField(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              ) : (
-                <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground bg-muted/10 mt-2">
-                  <ImageIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Enter an image URL to see a preview</p>
-                </div>
-              )}
+                )}
+                
+                <p className="text-xs text-muted-foreground">
+                  Upload up to 5 images. Supported formats: JPG, PNG.
+                </p>
+              </div>
             </div>
           </div>
 
