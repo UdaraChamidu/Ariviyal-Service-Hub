@@ -1,12 +1,13 @@
 // Firebase configuration - using blueprint:firebase_barebones_javascript
 import { initializeApp } from "firebase/app";
-import { 
-  getAuth, 
-  signInWithPopup, 
+import { getAnalytics } from "firebase/analytics";
+import {
+  getAuth,
+  signInWithPopup,
   signOut,
   GoogleAuthProvider,
   onAuthStateChanged,
-  type User
+  type User,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -20,16 +21,33 @@ import {
   deleteDoc,
   updateDoc,
   serverTimestamp,
-  type DocumentData
+  type DocumentData,
 } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`,
+  storageBucket: `${
+    import.meta.env.VITE_FIREBASE_PROJECT_ID
+  }.firebasestorage.app`,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+
+console.log("Firebase config:", firebaseConfig);
+
+// Validate required Firebase config fields
+if (!firebaseConfig.apiKey) {
+  console.warn("[Firebase Config Warning] apiKey is missing. Using placeholder for development.");
+  // Optionally set a placeholder to avoid crash during dev
+  firebaseConfig.apiKey = "PLACEHOLDER_API_KEY";
+}
+if (!firebaseConfig.authDomain || !firebaseConfig.projectId) {
+  console.warn("[Firebase Config Warning] Essential Firebase config fields are missing. Using placeholders for development.");
+  firebaseConfig.authDomain = firebaseConfig.authDomain || "placeholder.firebaseapp.com";
+  firebaseConfig.projectId = firebaseConfig.projectId || "placeholder-project-id";
+}
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
@@ -80,7 +98,9 @@ export interface FirebaseListing {
   createdAt?: any;
 }
 
-export async function addListing(listing: Omit<FirebaseListing, 'id' | 'createdAt'>) {
+export async function addListing(
+  listing: Omit<FirebaseListing, "id" | "createdAt">
+) {
   try {
     const docRef = await addDoc(collection(db, "listings"), {
       ...listing,
@@ -105,7 +125,7 @@ export async function getListings(category?: string) {
     } else {
       q = query(collection(db, "listings"), orderBy("createdAt", "desc"));
     }
-    
+
     const querySnapshot = await getDocs(q);
     const listings: FirebaseListing[] = [];
     querySnapshot.forEach((doc) => {
@@ -125,7 +145,7 @@ export async function getUserListings(userId: string) {
       where("userId", "==", userId),
       orderBy("createdAt", "desc")
     );
-    
+
     const querySnapshot = await getDocs(q);
     const listings: FirebaseListing[] = [];
     querySnapshot.forEach((doc) => {
@@ -147,7 +167,10 @@ export async function deleteListing(listingId: string) {
   }
 }
 
-export async function updateListing(listingId: string, data: Partial<FirebaseListing>) {
+export async function updateListing(
+  listingId: string,
+  data: Partial<FirebaseListing>
+) {
   try {
     await updateDoc(doc(db, "listings", listingId), data as DocumentData);
   } catch (error) {
