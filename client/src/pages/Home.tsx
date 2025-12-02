@@ -8,6 +8,7 @@ import { ContactModal } from "@/components/ContactModal";
 import { listings as mockListings, type Listing } from "@/lib/mockData";
 import { getListings, type FirebaseListing } from "@/lib/firebase";
 import { Loader2 } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -16,6 +17,7 @@ export default function Home() {
   const [contactListing, setContactListing] = useState<Listing | null>(null);
   const [firebaseListings, setFirebaseListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -67,6 +69,11 @@ export default function Home() {
     setSelectedCategory(null);
   };
 
+  const getCategoryName = (catId: string) => {
+    const key = `cat${catId.charAt(0).toUpperCase() + catId.slice(1)}` as any;
+    return t(key) || catId;
+  };
+
   return (
     <div className="min-h-screen">
       <HeroSection onSearch={handleSearch} />
@@ -80,19 +87,19 @@ export default function Home() {
           <div>
             <h2 className="text-xl font-semibold">
               {selectedCategory
-                ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Listings`
+                ? `${getCategoryName(selectedCategory)}`
                 : searchQuery
-                ? `Results for "${searchQuery}"`
-                : "All Listings"}
+                ? `${t("resultsFor")} "${searchQuery}"`
+                : t("allListings")}
             </h2>
             <p className="text-sm text-muted-foreground">
               {isLoading ? (
                 <span className="flex items-center gap-1">
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  Loading listings...
+                  {t("loadingListings")}
                 </span>
               ) : (
-                `${filteredListings.length} listing${filteredListings.length !== 1 ? "s" : ""} found`
+                `${filteredListings.length} ${t("listingsFound")}`
               )}
             </p>
           </div>

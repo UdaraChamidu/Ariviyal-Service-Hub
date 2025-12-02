@@ -54,6 +54,23 @@ export const translations = {
     tapToCall: "Tap to Call",
     emergencyNote: "In case of a life-threatening emergency, always call 119 (Police) or 110 (Ambulance) first.",
     
+    // Home Page
+    allListings: "All Listings",
+    listingsFound: "listings found",
+    resultsFor: "Results for",
+    loadingListings: "Loading listings...",
+    viewList: "List",
+    viewMap: "Map",
+    
+    // Categories
+    catAll: "All",
+    catBoarding: "Boarding",
+    catFood: "Food",
+    catTransport: "Transport",
+    catMarket: "Market",
+    catJobs: "Jobs",
+    catLaundry: "Laundry",
+    
     // Login Modal
     welcomeTitle: "Welcome to UniHub",
     welcomeDescription: "Join your campus community to post ads, find resources, and connect.",
@@ -121,6 +138,23 @@ export const translations = {
     tapToCall: "ඇමතීමට ඔබන්න",
     emergencyNote: "ජීවිතයට තර්ජනයක් වන හදිසි අවස්ථාවකදී, සෑම විටම පළමුව 119 (පොලිසිය) හෝ 110 (ගිලන් රථය) අමතන්න.",
     
+    // Home Page
+    allListings: "සියලුම දැන්වීම්",
+    listingsFound: "දැන්වීම් හමුවිය",
+    resultsFor: "සඳහා ප්‍රතිඵල",
+    loadingListings: "දැන්වීම් පූරණය වෙමින්...",
+    viewList: "ලැයිස්තුව",
+    viewMap: "සිතියම",
+    
+    // Categories
+    catAll: "සියල්ල",
+    catBoarding: "නවාතැන්",
+    catFood: "ආහාර",
+    catTransport: "ප්‍රවාහන",
+    catMarket: "වෙළඳපොළ",
+    catJobs: "රැකියා",
+    catLaundry: "රෙදි සේදීම",
+    
     // Login Modal
     welcomeTitle: "UniHub වෙත සාදරයෙන් පිළිගනිමු",
     welcomeDescription: "දැන්වීම් පළ කිරීමට සහ සම්පත් සොයා ගැනීමට එක්වන්න.",
@@ -187,6 +221,23 @@ export const translations = {
     emergencyDescription: "வளாகத்திற்கு அருகிலுள்ள அத்தியாவசிய அவசர சேவைகளுக்கான விரைவான அணுகல்",
     tapToCall: "அழைக்க தட்டவும்",
     emergencyNote: "உயிருக்கு ஆபத்தான அவசர நிலையில், எப்போதும் முதலில் 119 (காவல்துறை) அல்லது 110 (ஆம்புலன்ஸ்) அழைக்கவும்.",
+    
+    // Home Page
+    allListings: "அனைத்து பட்டியல்கள்",
+    listingsFound: "பட்டியல்கள் கண்டறியப்பட்டன",
+    resultsFor: "முடிவுகள்",
+    loadingListings: "பட்டியல்கள் ஏற்றப்படுகின்றன...",
+    viewList: "பட்டியல்",
+    viewMap: "வரைபடம்",
+    
+    // Categories
+    catAll: "அனைத்தும்",
+    catBoarding: "தங்குமிடம்",
+    catFood: "உணவு",
+    catTransport: "போக்குவரத்து",
+    catMarket: "சந்தை",
+    catJobs: "வேலைகள்",
+    catLaundry: "சலவை",
     
     // Login Modal
     welcomeTitle: "UniHub க்கு வரவேற்கிறோம்",

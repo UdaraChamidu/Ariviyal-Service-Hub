@@ -25,13 +25,13 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDwnTBwL0kitAY6ebU9dhAVgSRWbfJjZn0",
-  authDomain: "unihub-1e564.firebaseapp.com",
-  projectId: "unihub-1e564",
-  storageBucket: "unihub-1e564.firebasestorage.app",
-  messagingSenderId: "191827133194",
-  appId: "1:191827133194:web:b4c7a3bc3fec2ea43e70f3",
-  measurementId: "G-7D13C8RP5N"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 console.log("--- DEBUG FIREBASE CONFIG ---");
