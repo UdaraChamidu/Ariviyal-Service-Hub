@@ -25,28 +25,35 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: `${
-    import.meta.env.VITE_FIREBASE_PROJECT_ID
-  }.firebasestorage.app`,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyDwnTBwL0kitAY6ebU9dhAVgSRWbfJjZn0",
+  authDomain: "unihub-1e564.firebaseapp.com",
+  projectId: "unihub-1e564",
+  storageBucket: "unihub-1e564.firebasestorage.app",
+  messagingSenderId: "191827133194",
+  appId: "1:191827133194:web:b4c7a3bc3fec2ea43e70f3",
+  measurementId: "G-7D13C8RP5N"
 };
 
-console.log("Firebase config:", firebaseConfig);
+console.log("--- DEBUG FIREBASE CONFIG ---");
+console.log("Raw Env API Key:", import.meta.env.VITE_FIREBASE_API_KEY);
+console.log("Config API Key:", firebaseConfig.apiKey);
+console.log("Project ID:", firebaseConfig.projectId);
+console.log("-----------------------------");
 
 // Validate required Firebase config fields
 if (!firebaseConfig.apiKey) {
-  console.warn("[Firebase Config Warning] apiKey is missing. Using placeholder for development.");
-  // Optionally set a placeholder to avoid crash during dev
-  firebaseConfig.apiKey = "PLACEHOLDER_API_KEY";
+  console.error("[Firebase Config Error] VITE_FIREBASE_API_KEY is missing in .env file.");
+  firebaseConfig.apiKey = "PLACEHOLDER_API_KEY_FOR_DEV";
+} else {
+  console.log("[Firebase Config] API Key present.");
 }
-if (!firebaseConfig.authDomain || !firebaseConfig.projectId) {
-  console.warn("[Firebase Config Warning] Essential Firebase config fields are missing. Using placeholders for development.");
-  firebaseConfig.authDomain = firebaseConfig.authDomain || "placeholder.firebaseapp.com";
-  firebaseConfig.projectId = firebaseConfig.projectId || "placeholder-project-id";
+
+if (!firebaseConfig.projectId) {
+  console.error("[Firebase Config Error] VITE_FIREBASE_PROJECT_ID is missing in .env file.");
+  firebaseConfig.projectId = "placeholder-project-id";
+  firebaseConfig.authDomain = "placeholder.firebaseapp.com";
+} else {
+  console.log(`[Firebase Config] Project ID: ${firebaseConfig.projectId}`);
 }
 
 const app = initializeApp(firebaseConfig);
