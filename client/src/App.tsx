@@ -1,18 +1,70 @@
+import { useState } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider, useAuth } from "@/lib/AuthContext";
+import { Navbar } from "@/components/Navbar";
+import { LoginModal } from "@/components/LoginModal";
+import { PostAdModal } from "@/components/PostAdModal";
+import { ChatBot } from "@/components/ChatBot";
+import Home from "@/pages/Home";
+import MapPage from "@/pages/MapPage";
+import Community from "@/pages/Community";
+import Emergency from "@/pages/Emergency";
 import NotFound from "@/pages/not-found";
 
-function Router() {
+function AppContent() {
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showPostAdModal, setShowPostAdModal] = useState(false);
+  const [pendingPostAd, setPendingPostAd] = useState(false);
+  const { isAuthenticated } = useAuth();
+
+  const handlePostAdClick = () => {
+    if (isAuthenticated) {
+      setShowPostAdModal(true);
+    } else {
+      setPendingPostAd(true);
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    if (pendingPostAd) {
+      setPendingPostAd(false);
+      setShowPostAdModal(true);
+    }
+  };
+
   return (
-    <Switch>
-      {/* Add pages below */}
-      {/* <Route path="/" component={Home}/> */}
-      {/* Fallback to 404 */}
-      <Route component={NotFound} />
-    </Switch>
+    <div className="min-h-screen bg-background">
+      <Navbar onPostAdClick={handlePostAdClick} />
+      
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/map" component={MapPage} />
+        <Route path="/community" component={Community} />
+        <Route path="/emergency" component={Emergency} />
+        <Route component={NotFound} />
+      </Switch>
+
+      <ChatBot />
+
+      <LoginModal
+        open={showLoginModal}
+        onClose={() => {
+          setShowLoginModal(false);
+          setPendingPostAd(false);
+        }}
+        onSuccess={handleLoginSuccess}
+      />
+
+      <PostAdModal
+        open={showPostAdModal}
+        onClose={() => setShowPostAdModal(false)}
+      />
+    </div>
   );
 }
 
@@ -20,8 +72,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Router />
+        <AuthProvider>
+          <AppContent />
+          <Toaster />
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
