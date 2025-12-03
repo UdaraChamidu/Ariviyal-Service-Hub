@@ -7,8 +7,9 @@ import { ViewToggle } from "@/components/ViewToggle";
 import { ContactModal } from "@/components/ContactModal";
 import { listings as mockListings, type Listing } from "@/lib/mockData";
 import { getListings, type FirebaseListing } from "@/lib/firebase";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -36,6 +37,7 @@ export default function Home() {
           image: fb.image,
           verified: fb.verified,
           phone: fb.phone,
+          description: fb.description,
         }));
         setFirebaseListings(converted);
       } catch (error) {
@@ -55,11 +57,20 @@ export default function Home() {
   const filteredListings = useMemo(() => {
     return allListings.filter((listing) => {
       const matchesCategory = !selectedCategory || listing.category === selectedCategory;
-      const matchesSearch =
-        !searchQuery ||
-        listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        listing.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        listing.category.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!searchQuery) return matchesCategory;
+
+      const searchTokens = searchQuery.toLowerCase().split(" ").filter(token => token.length > 0);
+      
+      const matchesSearch = searchTokens.every(token => {
+        return (
+          listing.title.toLowerCase().includes(token) ||
+          listing.location.toLowerCase().includes(token) ||
+          listing.category.toLowerCase().includes(token) ||
+          (listing.description && listing.description.toLowerCase().includes(token))
+        );
+      });
+
       return matchesCategory && matchesSearch;
     });
   }, [selectedCategory, searchQuery, allListings]);
@@ -85,11 +96,24 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
           <div>
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-xl font-semibold flex items-center gap-3">
               {selectedCategory
                 ? `${getCategoryName(selectedCategory)}`
                 : searchQuery
-                ? `${t("resultsFor")} "${searchQuery}"`
+                ? (
+                  <>
+                    {`${t("resultsFor")} "${searchQuery}"`}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleSearch("")}
+                      className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Clear
+                    </Button>
+                  </>
+                )
                 : t("allListings")}
             </h2>
             <p className="text-sm text-muted-foreground">

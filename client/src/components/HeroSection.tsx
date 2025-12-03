@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/LanguageContext";
@@ -15,6 +15,11 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(searchQuery);
+  };
+
+  const handleClear = () => {
+    setSearchQuery("");
+    onSearch("");
   };
 
   return (
@@ -43,9 +48,18 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
                   placeholder={t("searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-12 text-base border-0 shadow-none focus-visible:ring-0 bg-transparent rounded-full"
+                  className="pl-12 pr-10 h-12 text-base border-0 shadow-none focus-visible:ring-0 bg-transparent rounded-full"
                   data-testid="input-search"
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-secondary/50 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
               <Button type="submit" size="lg" className="h-12 px-8 rounded-full" data-testid="button-search">
                 {t("searchButton")}

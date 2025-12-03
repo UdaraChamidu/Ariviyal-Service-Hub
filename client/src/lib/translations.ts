@@ -8,6 +8,8 @@ export const translations = {
     community: "Community",
     emergency: "Emergency",
     postAd: "Post Ad",
+   // postAd: "Post Ad",
+    profile: "Profile",
     signOut: "Sign Out",
     
     // Hero
@@ -92,6 +94,8 @@ export const translations = {
     community: "ප්‍රජාව",
     emergency: "හදිසි අවස්ථා",
     postAd: "දැන්වීමක් පළ කරන්න",
+    // postAd: "දැන්වීමක් පළ කරන්න",
+    profile: "පැතිකඩ",
     signOut: "ඉවත් වන්න",
     
     // Hero
@@ -176,6 +180,8 @@ export const translations = {
     community: "சமூகம்",
     emergency: "அவசரம்",
     postAd: "விளம்பரம் இடுக",
+    // postAd: "விளம்பரம் இடுக",
+    profile: "சுயவிவரம்",
     signOut: "வெளியேறு",
     
     // Hero

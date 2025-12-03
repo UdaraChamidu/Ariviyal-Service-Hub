@@ -286,3 +286,42 @@ export async function getReviews(listingId: string) {
     return [];
   }
 }
+
+export async function getUserLikedListings(userId: string) {
+  try {
+    const q = query(
+      collection(db, "listings"),
+      where("likes", "array-contains", userId),
+      orderBy("createdAt", "desc")
+    );
+
+    const querySnapshot = await getDocs(q);
+    const listings: FirebaseListing[] = [];
+    querySnapshot.forEach((doc) => {
+      listings.push({ id: doc.id, ...doc.data() } as FirebaseListing);
+    });
+    return listings;
+  } catch (error) {
+    console.error("Error getting liked listings:", error);
+    throw error;
+  }
+}
+
+export async function getUserReviews(userId: string) {
+  try {
+    const q = query(
+      collection(db, "reviews"),
+      where("userId", "==", userId),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    const reviews: Review[] = [];
+    querySnapshot.forEach((doc) => {
+      reviews.push({ id: doc.id, ...doc.data() } as Review);
+    });
+    return reviews;
+  } catch (error) {
+    console.error("Error getting user reviews:", error);
+    return [];
+  }
+}

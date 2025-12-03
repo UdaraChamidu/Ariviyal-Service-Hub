@@ -122,6 +122,12 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
                     <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                   </div>
                   <DropdownMenuSeparator />
+                  <Link href="/profile">
+                    <DropdownMenuItem className="cursor-pointer">
+                      {t("profile") || "Profile"}
+                    </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} data-testid="button-logout">
                     {t("signOut")}
                   </DropdownMenuItem>

@@ -15,6 +15,8 @@ import Community from "@/pages/Community";
 import Emergency from "@/pages/Emergency";
 import NotFound from "@/pages/not-found";
 
+import Profile from "@/pages/Profile";
+
 function AppContent() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showPostAdModal, setShowPostAdModal] = useState(false);
@@ -51,6 +53,7 @@ function AppContent() {
         <Route path="/map" component={MapPage} />
         <Route path="/community" component={Community} />
         <Route path="/emergency" component={Emergency} />
+        <Route path="/profile" component={Profile} />
         <Route component={NotFound} />
       </Switch>
 
