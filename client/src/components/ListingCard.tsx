@@ -1,10 +1,13 @@
 import { MapPin, Star, CheckCircle, Phone } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Listing } from "@/lib/mockData";
 import { useLanguage } from "@/lib/LanguageContext";
+import { useAuth } from "@/lib/AuthContext";
+import { toggleListingLike } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 type ListingCardProps = {
   listing: Listing;
@@ -13,14 +16,49 @@ type ListingCardProps = {
 
 export function ListingCard({ listing, onContact }: ListingCardProps) {
   const { t } = useLanguage();
-  const [isLiked, setIsLiked] = useState(false); // In real app, check if user.uid is in listing.likes
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (user && listing.likes) {
+      setIsLiked(listing.likes.includes(user.uid));
+    } else {
+      setIsLiked(false);
+    }
+  }, [user, listing.likes]);
 
   const displayImage = listing.images?.[0] || listing.image;
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsLiked(!isLiked);
-    // toggleListingLike(listing.id, user.uid);
+    
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to watch listings.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // Optimistic update
+      setIsLiked(!isLiked);
+      await toggleListingLike(listing.id, user.uid);
+    } catch (error) {
+      // Revert on error
+      setIsLiked(!isLiked);
+      toast({
+        title: "Error",
+        description: "Failed to update watch status.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -45,6 +83,7 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
           size="icon"
           className="absolute top-2 right-2 text-white hover:bg-white/20 hover:text-white"
           onClick={handleLike}
+          disabled={isLoading}
         >
           <Star className={`h-5 w-5 ${isLiked ? "fill-yellow-400 text-yellow-400" : ""}`} />
         </Button>

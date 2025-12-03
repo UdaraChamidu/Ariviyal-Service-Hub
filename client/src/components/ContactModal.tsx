@@ -1,5 +1,5 @@
 import { Phone, MessageCircle, Copy, CheckCircle, MapPin, Star, X, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -29,12 +29,23 @@ export function ContactModal({ listing, open, onClose }: ContactModalProps) {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const fetchReviews = async () => {
+    if (listing) {
+      try {
+        const fetchedReviews = await getReviews(listing.id);
+        setReviews(fetchedReviews);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    }
+  };
+
   // Load reviews when listing changes
-  // useEffect(() => {
-  //   if (listing) {
-  //     getReviews(listing.id).then(setReviews);
-  //   }
-  // }, [listing]);
+  useEffect(() => {
+    if (listing) {
+      fetchReviews();
+    }
+  }, [listing]);
 
   if (!listing) return null;
 
@@ -85,6 +96,7 @@ export function ContactModal({ listing, open, onClose }: ContactModalProps) {
       setNewReview("");
       setRating(0);
       // Reload reviews
+      fetchReviews();
     } catch (error) {
       console.error("Error submitting review:", error);
       toast({ title: "Failed to submit review", variant: "destructive" });
