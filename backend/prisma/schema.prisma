@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String          @id @default(uuid())
+  email     String          @unique
+  password  String
+  name      String
+  role      Role            @default(USER)
+  ads       Ad[]
+  posts     CommunityPost[]
+  comments  Comment[]
+  likes     Like[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@map("users")
+}
+
+model Ad {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Float?
+  category    Category
+  images      String[]
+  location    String?
+  latitude    Float?
+  longitude   Float?
+  contact     String
+  features    Json?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("ads")
+}
+
+model CommunityPost {
+  id        String    @id @default(uuid())
+  content   String
+  image     String?
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  comments  Comment[]
+  likes     Like[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("community_posts")
+}
+
+model Comment {
+  id        String        @id @default(uuid())
+  content   String
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id])
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("comments")
+}
+
+model Like {
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id])
+  createdAt DateTime      @default(now())
+
+  @@unique([userId, postId])
+  @@map("likes")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Category {
+  BOARDING
+  FOOD
+  TRANSPORT
+  JOB
+  EDUCATION
+  OTHER
+}
