@@ -18,20 +18,13 @@ type NavbarProps = {
   onPostAdClick: () => void;
 };
 
+// ... (imports)
+
 export function Navbar({ onPostAdClick }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [location] = useLocation();
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { t, setLanguage, language } = useLanguage();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const navLinks = [
     { href: "/", label: t("browse"), icon: LayoutGrid },
@@ -46,15 +39,10 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
   };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-background/80 backdrop-blur-md border-b shadow-sm py-2"
-          : "bg-transparent py-4"
-      }`}
-    >
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b shadow-sm py-2">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-14 md:h-16 gap-4">
+
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="bg-gradient-to-br from-primary to-secondary rounded-xl p-2 shadow-lg group-hover:shadow-primary/25 transition-all duration-300 group-hover:scale-105">
