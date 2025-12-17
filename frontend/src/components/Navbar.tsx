@@ -116,16 +116,16 @@ export function Navbar({ onPostAdClick }: NavbarProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full p-0.5 ring-2 ring-border hover:ring-primary/50 transition-all">
                     <Avatar className="h-8 w-8">
-                      {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || "User"} />}
+                      {user.photoURL && <AvatarImage src={user.photoURL} alt={user.name || "User"} />}
                       <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-white text-xs">
-                        {user.displayName?.charAt(0).toUpperCase() || "U"}
+                        {user.name?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 p-2">
                   <div className="px-2 py-2 mb-2 bg-secondary/10 rounded-lg">
-                    <p className="font-semibold text-sm">{user.displayName || "User"}</p>
+                    <p className="font-semibold text-sm">{user.name || "User"}</p>
                     <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                   </div>
                   <Link href="/profile">

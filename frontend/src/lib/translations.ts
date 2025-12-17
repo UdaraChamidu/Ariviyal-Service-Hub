@@ -38,6 +38,7 @@ export const translations = {
     verified: "Verified",
     quickContact: "Quick Contact",
     viewDetails: "View Details",
+    contact: "Contact",
     
     // Map Page
     mapTitle: "Map View",
@@ -123,6 +124,7 @@ export const translations = {
     verified: "තහවුරු කර ඇත",
     quickContact: "ක්ෂණික ඇමතුම්",
     viewDetails: "විස්තර බලන්න",
+    contact: "අමතන්න",
     
     // Map Page
     mapTitle: "සිතියම් දසුන",
@@ -208,6 +210,7 @@ export const translations = {
     verified: "சரிபார்க்கப்பட்டது",
     quickContact: "விரைவு தொடர்பு",
     viewDetails: "விவரங்களைப் பார்க்க",
+    contact: "தொடர்பு",
     
     // Map Page
     mapTitle: "வரைபடம்",

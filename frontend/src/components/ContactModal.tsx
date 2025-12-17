@@ -87,8 +87,8 @@ export function ContactModal({ listing, open, onClose }: ContactModalProps) {
     try {
       await addReview({
         listingId: listing.id,
-        userId: user.uid,
-        userName: user.displayName || "Anonymous",
+        userId: user.id,
+        userName: user.name || "Anonymous",
         rating,
         comment: newReview,
       });

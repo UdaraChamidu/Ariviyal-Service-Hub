@@ -1,11 +1,18 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import { type User } from "firebase/auth";
-import { signInWithGoogle, logOut, onAuthChange } from "./firebase";
+
+type User = {
+  id: string;
+  email: string;
+  name: string;
+  phoneNumber?: string;
+  photoURL?: string;
+};
 
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
-  loginWithGoogle: () => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string, phoneNumber: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 };
@@ -16,19 +23,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Todo: Check for persisted token on mount
   useEffect(() => {
-    const unsubscribe = onAuthChange((firebaseUser) => {
-      setUser(firebaseUser);
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Validate token with backend
+      // For now, just stop loading
       setIsLoading(false);
-    });
-
-    return () => unsubscribe();
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
-  const loginWithGoogle = useCallback(async () => {
+  const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      await signInWithGoogle();
+      const response = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Login failed");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.access_token);
+      setUser(data.user);
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
@@ -37,9 +60,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const register = useCallback(async (email: string, password: string, name: string, phoneNumber: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("http://localhost:3000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name, phoneNumber }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Registration failed");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.access_token);
+      setUser(data.user);
+    } catch (error) {
+      console.error("Register failed:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     try {
-      await logOut();
+      localStorage.removeItem("token");
+      setUser(null);
     } catch (error) {
       console.error("Logout failed:", error);
       throw error;
@@ -51,7 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isLoading,
-        loginWithGoogle,
+        login,
+        register,
         logout,
         isAuthenticated: !!user,
       }}

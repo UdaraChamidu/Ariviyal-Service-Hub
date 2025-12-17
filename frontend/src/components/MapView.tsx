@@ -82,14 +82,18 @@ export function MapView({ listings, onListingClick }: MapViewProps) {
         );
       })}
 
-      <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur rounded-md p-3 shadow-md">
-        <p className="text-xs text-muted-foreground mb-1">Showing</p>
-        <p className="text-sm font-semibold">{listings.length} listings nearby</p>
-      </div>
+      <Card className="absolute bottom-4 left-4 min-w-[140px] shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="p-3">
+          <p className="text-xs text-muted-foreground mb-1">Showing</p>
+          <p className="text-sm font-semibold">{listings.length} listings nearby</p>
+        </div>
+      </Card>
 
-      <div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur rounded-md p-2 shadow-md">
-        <p className="text-xs text-muted-foreground">Interactive map placeholder</p>
-      </div>
+      <Card className="absolute bottom-4 right-4 shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="p-3">
+          <p className="text-xs text-muted-foreground">Interactive map placeholder</p>
+        </div>
+      </Card>
     </Card>
   );
 }

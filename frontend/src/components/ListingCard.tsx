@@ -23,7 +23,7 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
 
   useEffect(() => {
     if (user && listing.likes) {
-      setIsLiked(listing.likes.includes(user.uid));
+      setIsLiked(listing.likes.includes(user.id));
     } else {
       setIsLiked(false);
     }
@@ -47,7 +47,7 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
       setIsLoading(true);
       // Optimistic update
       setIsLiked(!isLiked);
-      await toggleListingLike(listing.id, user.uid);
+      await toggleListingLike(listing.id, user.id);
     } catch (error) {
       // Revert on error
       setIsLiked(!isLiked);

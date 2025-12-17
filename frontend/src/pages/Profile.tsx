@@ -42,15 +42,15 @@ export default function Profile() {
       setIsLoading(true);
       try {
         // Fetch user's listings
-        const userListingsData = await getUserListings(user.uid);
+        const userListingsData = await getUserListings(user.id);
         setMyListings(convertListings(userListingsData));
 
         // Fetch liked listings
-        const likedListingsData = await getUserLikedListings(user.uid);
+        const likedListingsData = await getUserLikedListings(user.id);
         setLikedListings(convertListings(likedListingsData));
 
         // Fetch user's reviews
-        const userReviewsData = await getUserReviews(user.uid);
+        const userReviewsData = await getUserReviews(user.id);
         setMyReviews(userReviewsData);
       } catch (error) {
         console.error("Error fetching profile data:", error);
@@ -98,11 +98,11 @@ export default function Profile() {
           <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
             <AvatarImage src={user.photoURL || undefined} />
             <AvatarFallback className="text-2xl bg-primary/10 text-primary">
-              {user.displayName?.charAt(0) || user.email?.charAt(0)}
+              {user.name?.charAt(0) || user.email?.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div className="text-center md:text-left space-y-2">
-            <h1 className="text-3xl font-bold">{user.displayName || "User"}</h1>
+            <h1 className="text-3xl font-bold">{user.name || "User"}</h1>
             <p className="text-muted-foreground">{user.email}</p>
             <div className="flex gap-4 text-sm text-muted-foreground mt-2 justify-center md:justify-start">
               <div className="flex items-center gap-1">

@@ -27,8 +27,8 @@ import {
 import { categories } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/AuthContext";
-import { addListing, storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { addListing } from "@/lib/firebase";
+// import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useLanguage } from "@/lib/LanguageContext";
 
 type PostAdModalProps = {
@@ -64,11 +64,13 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
     const newUrls: string[] = [];
 
     try {
+      // Mock upload strictly for UI demonstration
       for (const file of files) {
-        const storageRef = ref(storage, `listings/${Date.now()}_${file.name}`);
-        const snapshot = await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(snapshot.ref);
-        newUrls.push(url);
+          // Create a fake URL
+          const url = URL.createObjectURL(file);
+          newUrls.push(url);
+          // Simulate network delay
+          await new Promise(resolve => setTimeout(resolve, 500));
       }
       
       setImageUrls((prev) => [...prev, ...newUrls]);
@@ -115,10 +117,10 @@ export function PostAdModal({ open, onClose, onSuccess }: PostAdModalProps) {
         phone: formData.phone,
         image: validImages[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop",
         images: validImages,
-        verified: user.emailVerified || false,
+        verified: false,
         rating: 0,
         reviews: 0,
-        userId: user.uid,
+        userId: user.id,
         userEmail: user.email || "",
       });
       

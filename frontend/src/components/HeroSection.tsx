@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/lib/LanguageContext";
 
 type HeroSectionProps = {
@@ -30,9 +31,9 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
 
       <div className="relative max-w-7xl mx-auto px-4 text-center z-10">
         <div className="animate-slide-up space-y-6" style={{ animationDelay: "0.1s" }}>
-          <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 mb-4 animate-in fade-in zoom-in duration-500">
+          <Badge variant="secondary" className="mb-4 animate-in fade-in zoom-in duration-500">
             For University Students
-          </div>
+          </Badge>
           
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground leading-tight">
             {t("heroTitle")}{" "}
@@ -94,16 +95,17 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
             { label: "Tuk Rides", query: "Tuk" },
             { label: "Used Books", query: "Books" }
           ].map((item) => (
-            <button
+            <Badge
               key={item.label}
+              variant="outline"
               onClick={() => {
                 setSearchQuery(item.query);
                 onSearch(item.query);
               }}
-              className="px-4 py-1.5 rounded-full bg-white dark:bg-zinc-800 border border-border/50 shadow-sm hover:border-primary/50 hover:text-primary transition-all hover:-translate-y-0.5"
+              className="cursor-pointer hover:bg-primary/10 hover:text-primary transition-all px-4 py-1.5 text-sm font-normal"
             >
               {item.label}
-            </button>
+            </Badge>
           ))}
         </div>
       </div>

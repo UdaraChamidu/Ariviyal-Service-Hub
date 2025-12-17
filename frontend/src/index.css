@@ -40,6 +40,9 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 243 75% 59%;
+    
+    --button-outline: 214.3 31.8% 91.4%; /* Matches border color by default */
+    --badge-outline: 214.3 31.8% 91.4%;
 
     --radius: 0.75rem;
   }
@@ -98,6 +101,18 @@
   }
   .hover-scale:hover {
     transform: scale(1.02);
+  }
+
+  /* Added missing classes referenced in button.tsx */
+  .hover-elevate {
+    @apply transition-all duration-200;
+  }
+  .hover-elevate:hover {
+    @apply shadow-md -translate-y-0.5;
+  }
+  
+  .active-elevate-2:active {
+    @apply shadow-none translate-y-0;
   }
 }
 

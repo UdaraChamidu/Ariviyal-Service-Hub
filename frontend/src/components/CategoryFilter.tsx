@@ -1,5 +1,5 @@
 import { Home, Utensils, Car, ShoppingBag, Briefcase, Shirt } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { categories } from "@/lib/mockData";
 import { useLanguage } from "@/lib/LanguageContext";
@@ -26,19 +26,19 @@ export function CategoryFilter({ selectedCategory, onCategoryChange }: CategoryF
       <div className="max-w-7xl mx-auto px-4">
         <ScrollArea className="w-full whitespace-nowrap pb-4">
           <div className="flex gap-4">
-            <button
+            <Card
               onClick={() => onCategoryChange(null)}
-              className={`flex flex-col items-center justify-center w-24 h-24 rounded-xl border-2 transition-all duration-300 ${
+              className={`flex flex-col items-center justify-center w-24 h-24 cursor-pointer transition-all duration-300 hover:scale-105 ${
                 selectedCategory === null
-                  ? "border-primary bg-primary/5 text-primary shadow-lg scale-105"
-                  : "border-transparent bg-white dark:bg-zinc-800 text-muted-foreground hover:bg-muted hover:scale-105 shadow-sm"
+                  ? "border-primary bg-primary/5 text-primary shadow-lg ring-2 ring-primary ring-offset-2"
+                  : "hover:bg-muted"
               }`}
             >
               <div className="mb-2 p-2 rounded-full bg-background shadow-inner">
                 <span className="text-xl font-bold">ALL</span>
               </div>
               <span className="text-sm font-medium">{t("catAll")}</span>
-            </button>
+            </Card>
 
             {categories.map((category) => {
               const Icon = iconMap[category.icon];
@@ -46,13 +46,13 @@ export function CategoryFilter({ selectedCategory, onCategoryChange }: CategoryF
               const catKey = `cat${category.id.charAt(0).toUpperCase() + category.id.slice(1)}` as any;
               
               return (
-                <button
+                <Card
                   key={category.id}
                   onClick={() => onCategoryChange(category.id)}
-                  className={`flex flex-col items-center justify-center w-28 h-28 rounded-xl border-2 transition-all duration-300 ${
+                  className={`flex flex-col items-center justify-center w-28 h-28 cursor-pointer transition-all duration-300 hover:scale-105 ${
                     isSelected
-                      ? "border-primary bg-primary/5 text-primary shadow-lg scale-105"
-                      : "border-transparent bg-white dark:bg-zinc-800 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:scale-105 shadow-sm"
+                      ? "border-primary bg-primary/5 text-primary shadow-lg ring-2 ring-primary ring-offset-2"
+                      : "hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   <div className={`mb-2 p-3 rounded-full transition-colors ${
@@ -61,7 +61,7 @@ export function CategoryFilter({ selectedCategory, onCategoryChange }: CategoryF
                     {Icon && <Icon className="h-6 w-6" />}
                   </div>
                   <span className="text-sm font-medium">{t(catKey) || category.name}</span>
-                </button>
+                </Card>
               );
             })}
           </div>

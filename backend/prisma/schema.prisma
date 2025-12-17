@@ -11,17 +11,19 @@ datasource db {
 }
 
 model User {
-  id        String          @id @default(uuid())
-  email     String          @unique
-  password  String
-  name      String
-  role      Role            @default(USER)
-  ads       Ad[]
-  posts     CommunityPost[]
-  comments  Comment[]
-  likes     Like[]
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  id          String          @id @default(uuid())
+  email       String          @unique
+  password    String
+  name        String
+  phoneNumber String?
+  photoURL    String?
+  role        Role            @default(USER)
+  ads         Ad[]
+  posts       CommunityPost[]
+  comments    Comment[]
+  likes       Like[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@map("users")
 }
