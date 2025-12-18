@@ -23,6 +23,7 @@ export type Listing = {
   phone: string;
   likes?: string[];
   description?: string;
+  userId?: string;
 };
 
 export type EmergencyContact = {

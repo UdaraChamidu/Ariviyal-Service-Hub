@@ -1,12 +1,13 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { HeroSection } from "@/components/HeroSection";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { ListingGrid } from "@/components/ListingGrid";
 import { MapView } from "@/components/MapView";
 import { ViewToggle } from "@/components/ViewToggle";
 import { ContactModal } from "@/components/ContactModal";
+import { PostAdModal } from "@/components/PostAdModal";
 import { listings as mockListings, type Listing } from "@/lib/mockData";
-import { getListings, type FirebaseListing } from "@/lib/firebase";
+import { getAds } from "@/lib/api";
 import { Loader2, X } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -16,39 +17,44 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<"list" | "map">("list");
   const [contactListing, setContactListing] = useState<Listing | null>(null);
+  const [editingListing, setEditingListing] = useState<Listing | null>(null);
   const [firebaseListings, setFirebaseListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
 
-  useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const fbListings = await getListings();
-        const converted: Listing[] = fbListings.map((fb) => ({
-          id: fb.id || "",
-          title: fb.title,
-          price: fb.price,
-          priceType: fb.priceType,
-          location: fb.location,
-          distance: fb.distance,
-          rating: fb.rating,
-          reviews: fb.reviews,
-          category: fb.category,
-          image: fb.image,
-          verified: fb.verified,
-          phone: fb.phone,
-          description: fb.description,
-        }));
-        setFirebaseListings(converted);
-      } catch (error) {
-        console.error("Error fetching listings:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchListings();
+  const fetchListings = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const backendAds = await getAds();
+      const converted: Listing[] = backendAds.map((ad: any) => ({
+        id: ad.id,
+        title: ad.title,
+        price: `Rs. ${ad.price}`,
+        priceType: ad.priceType || "month",
+        location: ad.location || "",
+        distance: ad.distance || "",
+        rating: 0,
+        reviews: 0,
+        category: ad.category,
+        image: ad.images && ad.images.length > 0 ? ad.images[0] : "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop",
+        verified: ad.verified || false,
+        phone: ad.phone || ad.contact,
+        description: ad.description,
+        userId: ad.userId,
+        images: ad.images,
+        locationLink: ad.locationLink
+      }));
+      setFirebaseListings(converted);
+    } catch (error) {
+      console.error("Error fetching listings:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings]);
 
   const allListings = useMemo(() => {
     return [...firebaseListings, ...mockListings];
@@ -56,22 +62,16 @@ export default function Home() {
 
   const filteredListings = useMemo(() => {
     return allListings.filter((listing) => {
-      const matchesCategory = !selectedCategory || listing.category === selectedCategory;
+      const matchesCategory = !selectedCategory || listing.category.toLowerCase() === selectedCategory.toLowerCase();
       
       if (!searchQuery) return matchesCategory;
-
       const searchTokens = searchQuery.toLowerCase().split(" ").filter(token => token.length > 0);
-      
-      const matchesSearch = searchTokens.every(token => {
-        return (
-          listing.title.toLowerCase().includes(token) ||
-          listing.location.toLowerCase().includes(token) ||
-          listing.category.toLowerCase().includes(token) ||
-          (listing.description && listing.description.toLowerCase().includes(token))
-        );
-      });
-
-      return matchesCategory && matchesSearch;
+      return searchTokens.every(token => 
+        listing.title.toLowerCase().includes(token) ||
+        listing.location.toLowerCase().includes(token) ||
+        listing.category.toLowerCase().includes(token) ||
+        (listing.description && listing.description.toLowerCase().includes(token))
+      ) && matchesCategory;
     });
   }, [selectedCategory, searchQuery, allListings]);
 
@@ -135,7 +135,12 @@ export default function Home() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : view === "list" ? (
-          <ListingGrid listings={filteredListings} onContact={setContactListing} />
+          <ListingGrid 
+            listings={filteredListings} 
+            onContact={setContactListing} 
+            onEdit={setEditingListing}
+            onDelete={(id) => fetchListings()}
+          />
         ) : (
           <MapView listings={filteredListings} onListingClick={setContactListing} />
         )}
@@ -145,6 +150,13 @@ export default function Home() {
         listing={contactListing}
         open={!!contactListing}
         onClose={() => setContactListing(null)}
+      />
+
+      <PostAdModal
+        open={!!editingListing}
+        onClose={() => setEditingListing(null)}
+        initialData={editingListing}
+        onSuccess={fetchListings}
       />
     </div>
   );

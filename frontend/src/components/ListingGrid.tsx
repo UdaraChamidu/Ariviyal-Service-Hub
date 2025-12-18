@@ -4,9 +4,11 @@ import type { Listing } from "@/lib/mockData";
 type ListingGridProps = {
   listings: Listing[];
   onContact: (listing: Listing) => void;
+  onEdit?: (listing: Listing) => void;
+  onDelete?: (id: string) => void;
 };
 
-export function ListingGrid({ listings, onContact }: ListingGridProps) {
+export function ListingGrid({ listings, onContact, onEdit, onDelete }: ListingGridProps) {
   if (listings.length === 0) {
     return (
       <div className="text-center py-12">
@@ -22,6 +24,8 @@ export function ListingGrid({ listings, onContact }: ListingGridProps) {
           key={listing.id}
           listing={listing}
           onContact={onContact}
+          onEdit={onEdit}
+          onDelete={onDelete}
         />
       ))}
     </div>

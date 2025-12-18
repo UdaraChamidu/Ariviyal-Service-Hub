@@ -33,12 +33,16 @@ model Ad {
   title       String
   description String
   price       Float?
+  priceType   String?
   category    Category
   images      String[]
   location    String?
+  locationLink String?
+  distance    String?
   latitude    Float?
   longitude   Float?
-  contact     String
+  phone       String
+  verified    Boolean  @default(false)
   features    Json?
   userId      String
   user        User     @relation(fields: [userId], references: [id])
@@ -96,7 +100,10 @@ enum Category {
   BOARDING
   FOOD
   TRANSPORT
+  MARKET
+  JOBS
+  LAUNDRY
+  OTHER
   JOB
   EDUCATION
-  OTHER
 }

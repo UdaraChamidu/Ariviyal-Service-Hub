@@ -1,4 +1,4 @@
-import { MapPin, Star, CheckCircle, Phone, ArrowUpRight } from "lucide-react";
+import { MapPin, Star, CheckCircle, Phone, ArrowUpRight, Pencil, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,19 +7,23 @@ import type { Listing } from "@/lib/mockData";
 import { useLanguage } from "@/lib/LanguageContext";
 import { useAuth } from "@/lib/AuthContext";
 import { toggleListingLike } from "@/lib/firebase";
+import { deleteAd } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 type ListingCardProps = {
   listing: Listing;
   onContact: (listing: Listing) => void;
+  onEdit?: (listing: Listing) => void;
+  onDelete?: (id: string) => void;
 };
 
-export function ListingCard({ listing, onContact }: ListingCardProps) {
+export function ListingCard({ listing, onContact, onEdit, onDelete }: ListingCardProps) {
   const { t } = useLanguage();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (user && listing.likes) {
@@ -61,6 +65,35 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
     }
   };
 
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this ad? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      await deleteAd(listing.id, localStorage.getItem("token") || "");
+      toast({
+        title: "Ad deleted",
+        description: "Your ad has been successfully removed.",
+      });
+      onDelete?.(listing.id);
+    } catch (error: any) {
+      console.error("Delete error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete ad.",
+        variant: "destructive",
+      });
+      setIsDeleting(false);
+    }
+  };
+
+  const isOwner = user?.id === listing.userId;
+
+  if (isDeleting) return null; 
+
   return (
     <Card className="overflow-hidden group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border-border/40 bg-card/50 backdrop-blur-sm" data-testid={`card-listing-${listing.id}`}>
       {/* Image Container */}
@@ -86,15 +119,40 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
         </div>
 
         {/* Action Buttons */}
-        <Button
-          variant="secondary"
-          size="icon"
-          className="absolute top-3 right-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg hover:scale-110 bg-white/90 dark:bg-zinc-800/90"
-          onClick={handleLike}
-          disabled={isLoading}
-        >
-          <Star className={`h-4 w-4 ${isLiked ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
-        </Button>
+        <div className="absolute top-3 right-3 flex gap-2">
+          {isOwner && (
+            <>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="rounded-full shadow-lg bg-white/90 dark:bg-zinc-800/90 hover:bg-white dark:hover:bg-zinc-700"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit?.(listing);
+                }}
+              >
+                <Pencil className="h-4 w-4 text-primary" />
+              </Button>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="rounded-full shadow-lg"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+          <Button
+            variant="secondary"
+            size="icon"
+            className={`rounded-full shadow-lg bg-white/90 dark:bg-zinc-800/90 ${isOwner ? '' : 'opacity-0 group-hover:opacity-100 transition-all duration-300'}`}
+            onClick={handleLike}
+            disabled={isLoading}
+          >
+            <Star className={`h-4 w-4 ${isLiked ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+          </Button>
+        </div>
         
         {/* Quick View Button Overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
