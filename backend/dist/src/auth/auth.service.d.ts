@@ -32,4 +32,28 @@ export declare class AuthService {
             photoURL: any;
         };
     }>;
+    getUserProfile(userId: string): Promise<{
+        id: string;
+        email: string;
+        name: string;
+        phoneNumber: string | null;
+        photoURL: string | null;
+        role: import(".prisma/client").$Enums.Role;
+        createdAt: Date;
+        updatedAt: Date;
+    } | null>;
+    updateUser(userId: string, data: {
+        name?: string;
+        phoneNumber?: string;
+        photoURL?: string;
+    }): Promise<{
+        id: string;
+        email: string;
+        name: string;
+        phoneNumber: string | null;
+        photoURL: string | null;
+        role: import(".prisma/client").$Enums.Role;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
 }

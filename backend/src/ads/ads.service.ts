@@ -62,4 +62,18 @@ export class AdsService {
       where: { id },
     });
   }
+
+  async findByUser(userId: string): Promise<Ad[]> {
+    return this.prisma.ad.findMany({
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
 }

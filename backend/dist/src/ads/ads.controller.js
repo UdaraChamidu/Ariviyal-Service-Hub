@@ -43,6 +43,9 @@ let AdsController = class AdsController {
     remove(id, req) {
         return this.adsService.remove(id, req.user.userId);
     }
+    findMyAds(req) {
+        return this.adsService.findByUser(req.user.userId);
+    }
 };
 exports.AdsController = AdsController;
 __decorate([
@@ -86,6 +89,14 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], AdsController.prototype, "remove", null);
+__decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.Get)('user/me'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AdsController.prototype, "findMyAds", null);
 exports.AdsController = AdsController = __decorate([
     (0, common_1.Controller)('ads'),
     __metadata("design:paramtypes", [ads_service_1.AdsService])

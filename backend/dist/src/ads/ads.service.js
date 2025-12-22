@@ -65,6 +65,19 @@ let AdsService = class AdsService {
             where: { id },
         });
     }
+    async findByUser(userId) {
+        return this.prisma.ad.findMany({
+            where: {
+                userId: userId,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+            include: {
+                user: true,
+            },
+        });
+    }
 };
 exports.AdsService = AdsService;
 exports.AdsService = AdsService = __decorate([

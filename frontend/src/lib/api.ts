@@ -62,3 +62,36 @@ export async function deleteAd(id: string, token: string) {
     throw new Error(`Failed to delete ad: ${response.status} ${errorText}`);
   }
 }
+
+export async function getUserAds(token: string) {
+  const response = await fetch(`${API_URL}/ads/user/me`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch user ads');
+  }
+
+  return response.json();
+}
+
+export async function updateUserProfile(data: any, token: string) {
+  const response = await fetch(`${API_URL}/auth/profile`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('API Error updateUserProfile:', response.status, errorText);
+    throw new Error(`Failed to update profile: ${response.status} ${errorText}`);
+  }
+
+  return response.json();
+}

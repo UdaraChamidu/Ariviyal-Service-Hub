@@ -47,4 +47,10 @@ export class AdsController {
   remove(@Param('id') id: string, @Request() req) {
     return this.adsService.remove(id, req.user.userId);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('user/me')
+  findMyAds(@Request() req) {
+    return this.adsService.findByUser(req.user.userId);
+  }
 }

@@ -14,6 +14,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string, phoneNumber: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (user: User) => void;
   isAuthenticated: boolean;
 };
 
@@ -23,16 +24,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Todo: Check for persisted token on mount
+  // Check for persisted token on mount
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // Validate token with backend
-      // For now, just stop loading
+    const initAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const response = await fetch("http://localhost:3000/auth/profile", {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+          } else {
+            // Token invalid or expired
+            localStorage.removeItem("token");
+            setUser(null);
+          }
+        } catch (error) {
+          console.error("Auth initialization failed:", error);
+          localStorage.removeItem("token");
+          setUser(null);
+        }
+      }
       setIsLoading(false);
-    } else {
-      setIsLoading(false);
-    }
+    };
+
+    initAuth();
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -95,6 +116,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const updateProfile = useCallback((updatedUser: User) => {
+    setUser(updatedUser);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -103,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        updateProfile,
         isAuthenticated: !!user,
       }}
     >

@@ -63,6 +63,7 @@ let AuthService = class AuthService {
         return null;
     }
     async login(user) {
+        console.log('Generating token for user:', user);
         const payload = { email: user.email, sub: user.id, role: user.role };
         return {
             access_token: this.jwtService.sign(payload),
@@ -94,6 +95,28 @@ let AuthService = class AuthService {
         });
         const { password, ...result } = user;
         return this.login(result);
+    }
+    async getUserProfile(userId) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+        if (user) {
+            const { password, ...result } = user;
+            return result;
+        }
+        return null;
+    }
+    async updateUser(userId, data) {
+        const user = await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                name: data.name,
+                phoneNumber: data.phoneNumber,
+                photoURL: data.photoURL,
+            },
+        });
+        const { password, ...result } = user;
+        return result;
     }
 };
 exports.AuthService = AuthService;

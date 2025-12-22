@@ -8,4 +8,5 @@ export declare class AdsService {
     findOne(id: string): Promise<Ad | null>;
     update(id: string, userId: string, data: Prisma.AdUpdateInput): Promise<Ad>;
     remove(id: string, userId: string): Promise<void>;
+    findByUser(userId: string): Promise<Ad[]>;
 }

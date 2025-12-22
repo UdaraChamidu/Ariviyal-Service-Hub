@@ -6,6 +6,7 @@ export declare class AdsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
         title: string;
         description: string;
         price: number | null;
@@ -20,12 +21,12 @@ export declare class AdsController {
         phone: string;
         verified: boolean;
         features: import("@prisma/client/runtime/library").JsonValue | null;
-        userId: string;
     }>;
     findAll(): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
         title: string;
         description: string;
         price: number | null;
@@ -40,12 +41,12 @@ export declare class AdsController {
         phone: string;
         verified: boolean;
         features: import("@prisma/client/runtime/library").JsonValue | null;
-        userId: string;
     }[]>;
     findOne(id: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
         title: string;
         description: string;
         price: number | null;
@@ -60,12 +61,12 @@ export declare class AdsController {
         phone: string;
         verified: boolean;
         features: import("@prisma/client/runtime/library").JsonValue | null;
-        userId: string;
     } | null>;
     update(id: string, req: any, updateAdDto: any): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
         title: string;
         description: string;
         price: number | null;
@@ -80,7 +81,26 @@ export declare class AdsController {
         phone: string;
         verified: boolean;
         features: import("@prisma/client/runtime/library").JsonValue | null;
-        userId: string;
     }>;
     remove(id: string, req: any): Promise<void>;
+    findMyAds(req: any): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        title: string;
+        description: string;
+        price: number | null;
+        priceType: string | null;
+        category: import(".prisma/client").$Enums.Category;
+        images: string[];
+        location: string | null;
+        locationLink: string | null;
+        distance: string | null;
+        latitude: number | null;
+        longitude: number | null;
+        phone: string;
+        verified: boolean;
+        features: import("@prisma/client/runtime/library").JsonValue | null;
+    }[]>;
 }

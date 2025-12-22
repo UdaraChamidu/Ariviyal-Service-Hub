@@ -1,20 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { useLanguage } from "@/lib/LanguageContext";
 import { useLocation } from "wouter";
 import { ListingGrid } from "@/components/ListingGrid";
+import { EditProfileModal } from "@/components/EditProfileModal";
 import { ContactModal } from "@/components/ContactModal";
+import { PostAdModal } from "@/components/PostAdModal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, User, Heart, List, MessageSquare } from "lucide-react";
+import { Loader2, User, Heart, List, MessageSquare, Edit2 } from "lucide-react";
 import { 
-  getUserListings, 
   getUserLikedListings, 
   getUserReviews, 
   type FirebaseListing, 
   type Review 
 } from "@/lib/firebase";
+import { getUserAds } from "@/lib/api";
 import { type Listing } from "@/lib/mockData";
 
 export default function Profile() {
@@ -22,12 +24,14 @@ export default function Profile() {
   const { t } = useLanguage();
   const [_, setLocation] = useLocation();
   
+  const [showEditProfile, setShowEditProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("listings");
   const [myListings, setMyListings] = useState<Listing[]>([]);
   const [likedListings, setLikedListings] = useState<Listing[]>([]);
   const [myReviews, setMyReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [contactListing, setContactListing] = useState<Listing | null>(null);
+  const [editingListing, setEditingListing] = useState<Listing | null>(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -35,34 +39,55 @@ export default function Profile() {
     }
   }, [authLoading, isAuthenticated, setLocation]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;
+  const fetchData = useCallback(async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      // Fetch user's listings from backend
+      const token = localStorage.getItem("token") || "";
+      const backendAds = await getUserAds(token);
       
-      setIsLoading(true);
-      try {
-        // Fetch user's listings
-        const userListingsData = await getUserListings(user.id);
-        setMyListings(convertListings(userListingsData));
+      const converted: Listing[] = backendAds.map((ad: any) => ({
+        id: ad.id,
+        title: ad.title,
+        price: `Rs. ${ad.price}`,
+        priceType: ad.priceType || "month",
+        location: ad.location || "",
+        distance: ad.distance || "",
+        rating: 0,
+        reviews: 0,
+        category: ad.category,
+        image: ad.images && ad.images.length > 0 ? ad.images[0] : "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop",
+        verified: ad.verified || false,
+        phone: ad.phone || ad.contact,
+        description: ad.description,
+        userId: ad.userId,
+        images: ad.images,
+        locationLink: ad.locationLink
+      }));
+      
+      setMyListings(converted);
 
-        // Fetch liked listings
-        const likedListingsData = await getUserLikedListings(user.id);
-        setLikedListings(convertListings(likedListingsData));
+      // Fetch liked listings (MOCKED)
+      const likedListingsData = await getUserLikedListings(user.id);
+      setLikedListings(convertListings(likedListingsData));
 
-        // Fetch user's reviews
-        const userReviewsData = await getUserReviews(user.id);
-        setMyReviews(userReviewsData);
-      } catch (error) {
-        console.error("Error fetching profile data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      // Fetch user's reviews (MOCKED)
+      const userReviewsData = await getUserReviews(user.id);
+      setMyReviews(userReviewsData);
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
 
+  useEffect(() => {
     if (user) {
       fetchData();
     }
-  }, [user]);
+  }, [user, fetchData]);
 
   const convertListings = (fbListings: FirebaseListing[]): Listing[] => {
     return fbListings.map((fb) => ({
@@ -79,6 +104,7 @@ export default function Profile() {
       verified: fb.verified,
       phone: fb.phone,
       description: fb.description,
+      userId: "", // Mock data doesn't usually have userId for display
     }));
   };
 
@@ -94,7 +120,17 @@ export default function Profile() {
     <div className="min-h-screen bg-background py-12">
       <div className="max-w-7xl mx-auto px-4">
         {/* Profile Header */}
-        <div className="bg-card rounded-xl border shadow-sm p-8 mb-8 flex flex-col md:flex-row items-center gap-6">
+        <div className="bg-card rounded-xl border shadow-sm p-8 mb-8 flex flex-col md:flex-row items-center gap-6 relative">
+          <Button
+            variant="outline"
+            size="sm"
+            className="absolute top-4 right-4 gap-2"
+            onClick={() => setShowEditProfile(true)}
+          >
+            <Edit2 className="h-4 w-4" />
+            Edit Profile
+          </Button>
+
           <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
             <AvatarImage src={user.photoURL || undefined} />
             <AvatarFallback className="text-2xl bg-primary/10 text-primary">
@@ -104,6 +140,9 @@ export default function Profile() {
           <div className="text-center md:text-left space-y-2">
             <h1 className="text-3xl font-bold">{user.name || "User"}</h1>
             <p className="text-muted-foreground">{user.email}</p>
+            {user.phoneNumber && (
+              <p className="text-sm text-muted-foreground">{user.phoneNumber}</p>
+            )}
             <div className="flex gap-4 text-sm text-muted-foreground mt-2 justify-center md:justify-start">
               <div className="flex items-center gap-1">
                 <List className="h-4 w-4" />
@@ -135,7 +174,12 @@ export default function Profile() {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : myListings.length > 0 ? (
-              <ListingGrid listings={myListings} onContact={setContactListing} />
+              <ListingGrid 
+                listings={myListings} 
+                onContact={setContactListing}
+                onEdit={setEditingListing}
+                onDelete={(id) => fetchData()} 
+              />
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <p>You haven't posted any listings yet.</p>
@@ -193,6 +237,18 @@ export default function Profile() {
         listing={contactListing}
         open={!!contactListing}
         onClose={() => setContactListing(null)}
+      />
+
+      <PostAdModal
+        open={!!editingListing}
+        onClose={() => setEditingListing(null)}
+        initialData={editingListing}
+        onSuccess={fetchData}
+      />
+      
+      <EditProfileModal 
+        open={showEditProfile} 
+        onClose={() => setShowEditProfile(false)} 
       />
     </div>
   );

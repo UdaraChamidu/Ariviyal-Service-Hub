@@ -20,6 +20,7 @@ export class AuthService {
   }
 
   async login(user: any) {
+    console.log('Generating token for user:', user);
     const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
@@ -56,5 +57,31 @@ export class AuthService {
 
     const { password, ...result } = user;
     return this.login(result);
+  }
+
+  async getUserProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    
+    if (user) {
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
+  }
+
+  async updateUser(userId: string, data: { name?: string; phoneNumber?: string; photoURL?: string }) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: data.name,
+        phoneNumber: data.phoneNumber,
+        photoURL: data.photoURL,
+      },
+    });
+
+    const { password, ...result } = user;
+    return result;
   }
 }
